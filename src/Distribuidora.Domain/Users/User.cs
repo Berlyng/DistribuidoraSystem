@@ -25,7 +25,7 @@ namespace Distribuidora.Domain.Users
         public PasswordHash PasswordHash { get; private set; } = null!;
         public UserStatus Status { get; private set; }
 
-       public Result<User> Create(PersonName name, Email email, PasswordHash passwordhash)
+       public static Result<User> Create(PersonName name, Email email, PasswordHash passwordhash)
         {
             var user = new User(name, email, passwordhash);
             return Result<User>.Success(user);
