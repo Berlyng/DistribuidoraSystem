@@ -1,5 +1,6 @@
 ﻿using Distribuidora.Application.Users.Abstractions;
 using Distribuidora.Infrastructure.Persistence.Repositories;
+using Distribuidora.Infrastructure.Security;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace Distribuidora.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 
             return services;
         }
