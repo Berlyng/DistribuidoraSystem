@@ -13,5 +13,7 @@ namespace Distribuidora.Domain.Users
         public static readonly Error Suspended = new("User.Suspended", "El usuario esta suspendido");
 
         public static readonly Error EmailAlreadyExists = new("User.EmailAlreadyExists", "Un usuario con este email ya existe");
+        public static readonly Error InvalidCredentials = new("User.InvalidCredentials", "El email o la contraseña es incorrecta");
+        public static readonly Error NotFound = new("User.NotFound", "El usuario no fue encontrado");
     }
 }
