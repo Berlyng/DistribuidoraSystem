@@ -26,12 +26,12 @@ namespace Distribuidora.Infrastructure.Persistence.Repositories
 
         public async Task<bool> ExistsByEmailAsync(Email email, CancellationToken cancellationToken = default)
         {
-           return await _context.Users.AnyAsync(user => user.Email.Value == email.Value, cancellationToken);
+           return await _context.Users.AnyAsync(user => user.Email == email, cancellationToken);
         }
 
         public async Task<User?> GetByEmailAsync(Email email, CancellationToken cancellationToken = default)
         {
-            return await _context.Users.FirstOrDefaultAsync(user => user.Email.Value == email.Value, cancellationToken);
+            return await _context.Users.FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
         }
 
         public async Task<User> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
