@@ -1,5 +1,10 @@
 using Distribuidora.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Distribuidora.Infrastructure;
+using Distribuidora.API.Users.Register;
+using MediatR;
+using Distribuidora.Application.Users.Register;
+using Distribuidora.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +17,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure();
 
 var app = builder.Build();
 
@@ -42,6 +50,31 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+
+app.MapPost("/api/users/register",
+    async (
+        RegisterUserRequest request,
+        ISender sender,
+        CancellationToken cancellationToken) =>
+    {
+        var command = new RegisterUserCommand(request.FirstName, request.LastName, request.Email, request.Password);
+        var result = await sender.Send(command, cancellationToken);
+
+        if (result.IsFailure)
+        {
+            return Results.BadRequest(new
+            {
+                code = result.Error.Code,
+                message = result.Error.Message,
+            });
+        }
+
+        return Results.Created($"/api/users/{result.Value}", new { id = result.Value });
+    })
+    .WithName("RegisterUser")
+    .WithTags("Users");
+
 
 app.Run();
 
