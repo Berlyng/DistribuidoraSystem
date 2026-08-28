@@ -1,10 +1,11 @@
-﻿using Distribuidora.Application.Users.Abstractions;
+﻿using Distribuidora.API.Users.Login;
+using Distribuidora.Application.Users.Abstractions;
 using Distribuidora.Domain.Common;
 using Distribuidora.Domain.Users;
 using Distribuidora.Domain.Users.ValueObject;
 using MediatR;
 
-namespace Distribuidora.API.Users.Login
+namespace Distribuidora.Application.Users.Login
 {
     public class LoginUserCommandHandler : IRequestHandler<LoginUserCommand, Result<LoginResult>>
     {
