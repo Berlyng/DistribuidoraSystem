@@ -3,7 +3,8 @@
     public sealed record LoginResult(Guid Id, 
         string FirstName, 
         string LastName, 
-        string Email)
+        string Email,
+        string AccessToken)
     {
     }
 }
