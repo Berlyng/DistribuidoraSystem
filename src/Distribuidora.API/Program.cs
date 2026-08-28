@@ -1,12 +1,15 @@
-using Distribuidora.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using Distribuidora.Infrastructure;
-using Distribuidora.API.Users.Register;
-using MediatR;
-using Distribuidora.Application.Users.Register;
-using Distribuidora.Application;
 using Distribuidora.API.Users.Login;
+using Distribuidora.API.Users.Register;
+using Distribuidora.Application;
 using Distribuidora.Application.Users.Login;
+using Distribuidora.Application.Users.Register;
+using Distribuidora.Infrastructure;
+using Distribuidora.Infrastructure.Persistence;
+using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +25,41 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+var jwtSection = builder.Configuration
+    .GetSection("Jwt");
+
+var secretKey = jwtSection["SecretKey"]
+    ?? throw new InvalidOperationException(
+        "JWT SecretKey is not configured.");
+
+builder.Services
+    .AddAuthentication(
+        JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidIssuer = jwtSection["Issuer"],
+
+                ValidateAudience = true,
+                ValidAudience = jwtSection["Audience"],
+
+                ValidateLifetime = true,
+
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey =
+                    new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(secretKey)),
+
+                ClockSkew = TimeSpan.Zero
+            };
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -102,6 +139,18 @@ app.MapPost("/api/users/login",
 .WithName("LoginUser")
 .WithTags("Users");
 
+app.MapGet("/api/test/protected", () =>
+{
+    return Results.Ok(new
+    {
+        message = "JWT authentication is working."
+    });
+})
+.RequireAuthorization()
+.WithTags("Test");
+
+app.UseAuthentication();
+app.UseAuthorization();
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

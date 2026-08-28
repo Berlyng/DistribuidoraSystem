@@ -11,11 +11,13 @@ namespace Distribuidora.Application.Users.Login
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly IJwtProvider _jwtProvider;
 
-        public LoginUserCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher)
+        public LoginUserCommandHandler(IUserRepository userRepository, IPasswordHasher passwordHasher, IJwtProvider jwtProvider)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _jwtProvider = jwtProvider;
         }
 
         public async Task<Result<LoginResult>> Handle(LoginUserCommand request, CancellationToken cancellationToken)
@@ -32,9 +34,13 @@ namespace Distribuidora.Application.Users.Login
                 return Result<LoginResult>.Failure(UserErrors.InvalidCredentials);
             }
 
+
+
             var user = await _userRepository.GetByEmailAsync(emailResult.Value, cancellationToken);
 
-            if(user is null)
+            var accessToken = _jwtProvider.GenerateAccessToken(user);
+
+            if (user is null)
             {
                 return Result<LoginResult>.Failure(UserErrors.InvalidCredentials);
             }
@@ -56,7 +62,7 @@ namespace Distribuidora.Application.Users.Login
                 return Result<LoginResult>.Failure(UserErrors.InvalidCredentials);
             }
 
-            var response = new LoginResult(user.Id, user.Name.FirstName, user.Name.LastName, user.Email.Value);
+            var response = new LoginResult(user.Id, user.Name.FirstName, user.Name.LastName, user.Email.Value, accessToken);
 
             return Result<LoginResult>.Success(response);
         }
