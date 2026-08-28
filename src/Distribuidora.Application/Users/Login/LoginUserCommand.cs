@@ -1,7 +1,8 @@
-﻿using Distribuidora.Domain.Common;
+﻿using Distribuidora.API.Users.Login;
+using Distribuidora.Domain.Common;
 using MediatR;
 
-namespace Distribuidora.API.Users.Login
+namespace Distribuidora.Application.Users.Login
 {
     public sealed record LoginUserCommand(
         string Email, 

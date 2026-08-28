@@ -5,8 +5,8 @@ using Distribuidora.API.Users.Register;
 using MediatR;
 using Distribuidora.Application.Users.Register;
 using Distribuidora.Application;
-using Distribuidora.Application.Users.Login;
 using Distribuidora.API.Users.Login;
+using Distribuidora.Application.Users.Login;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -87,7 +87,7 @@ app.MapPost("/api/users/login",
         var command = new LoginUserCommand(request.Email, request.Password);
         var result = await sender.Send(command, cancellationToken);
 
-        if (!result.IsFailure)
+        if (result.IsFailure)
         {
             return Results.BadRequest(new
             {
