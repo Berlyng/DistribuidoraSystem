@@ -1,4 +1,5 @@
 ﻿using Distribuidora.Domain.Common;
+using Distribuidora.Domain.Users;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace Distribuidora.Application.Users.Register
         string FirstName,
         string LastName,
         string Email,
-        string Password) : IRequest<Result<Guid>>;
+        string Password,
+        UserRole Role) : IRequest<Result<Guid>>;
     
 }

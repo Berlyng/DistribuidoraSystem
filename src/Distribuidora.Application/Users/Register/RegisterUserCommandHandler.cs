@@ -47,7 +47,7 @@ namespace Distribuidora.Application.Users.Register
             }
 
             var passwordHash = _hasher.Hash(passwordResult.Value);
-            var userResult =  User.Create(nameResult.Value, emailResult.Value, passwordHash);
+            var userResult =  User.Create(nameResult.Value, emailResult.Value, passwordHash, request.Role);
 
             if (userResult.IsFailure)
             {

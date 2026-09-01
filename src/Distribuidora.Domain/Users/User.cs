@@ -12,22 +12,24 @@ namespace Distribuidora.Domain.Users
         {
         }
 
-        public User(PersonName name, Email email, PasswordHash passwordHash)
+        public User(PersonName name, Email email, PasswordHash passwordHash, UserRole role)
         {
             Name = name;
             Email = email;
             PasswordHash = passwordHash;
             Status = UserStatus.Active;
+            Role = role;
         }
 
         public PersonName Name { get; private set; } = null!;
         public Email Email { get; private set; } = null!;
         public PasswordHash PasswordHash { get; private set; } = null!;
         public UserStatus Status { get; private set; }
+        public UserRole Role { get; private set; }
 
-       public static Result<User> Create(PersonName name, Email email, PasswordHash passwordhash)
+       public static Result<User> Create(PersonName name, Email email, PasswordHash passwordhash, UserRole role)
         {
-            var user = new User(name, email, passwordhash);
+            var user = new User(name, email, passwordhash, role);
             return Result<User>.Success(user);
         }
 
