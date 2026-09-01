@@ -4,6 +4,7 @@ using Distribuidora.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Distribuidora.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260901150752_AddUserRole")]
+    partial class AddUserRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -73,7 +76,7 @@ namespace Distribuidora.Infrastructure.Persistence.Migrations
                                 .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
-                                .HasColumnName("FirstName");
+                                .HasColumnName("Firstame");
 
                             b1.Property<string>("LastName")
                                 .IsRequired()

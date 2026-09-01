@@ -38,8 +38,6 @@ namespace Distribuidora.Application.Users.Login
 
             var user = await _userRepository.GetByEmailAsync(emailResult.Value, cancellationToken);
 
-            var accessToken = _jwtProvider.GenerateAccessToken(user);
-
             if (user is null)
             {
                 return Result<LoginResult>.Failure(UserErrors.InvalidCredentials);
@@ -55,6 +53,8 @@ namespace Distribuidora.Application.Users.Login
                 return Result<LoginResult>.Failure(UserErrors.Suspended);
             }
 
+            var accessToken = _jwtProvider.GenerateAccessToken(user);
+
             var passwordIsValid = _passwordHasher.Verify(passwordResult.Value, user.PasswordHash);
 
             if(!passwordIsValid)
@@ -62,7 +62,7 @@ namespace Distribuidora.Application.Users.Login
                 return Result<LoginResult>.Failure(UserErrors.InvalidCredentials);
             }
 
-            var response = new LoginResult(user.Id, user.Name.FirstName, user.Name.LastName, user.Email.Value, accessToken);
+            var response = new LoginResult(user.Id, user.Name.FirstName, user.Name.LastName, user.Email.Value,user.Role.ToString(), accessToken);
 
             return Result<LoginResult>.Success(response);
         }

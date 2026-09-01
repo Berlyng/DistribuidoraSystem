@@ -3,6 +3,7 @@ using Distribuidora.API.Users.Register;
 using Distribuidora.Application;
 using Distribuidora.Application.Users.Login;
 using Distribuidora.Application.Users.Register;
+using Distribuidora.Domain.Users;
 using Distribuidora.Infrastructure;
 using Distribuidora.Infrastructure.Persistence;
 using MediatR;
@@ -117,7 +118,21 @@ app.MapPost("/api/users/register",
         ISender sender,
         CancellationToken cancellationToken) =>
     {
-        var command = new RegisterUserCommand(request.FirstName, request.LastName, request.Email, request.Password);
+
+
+        if (!Enum.TryParse<UserRole>(
+        request.Role,
+        ignoreCase: true,
+        out var role))
+        {
+            return Results.BadRequest(new
+            {
+                code = "User.InvalidRole",
+                message = "El rol especificado no es válido."
+            });
+        }
+
+        var command = new RegisterUserCommand(request.FirstName, request.LastName, request.Email, request.Password, role);
         var result = await sender.Send(command, cancellationToken);
 
         if (result.IsFailure)
@@ -158,15 +173,18 @@ app.MapPost("/api/users/login",
 .WithName("LoginUser")
 .WithTags("Users");
 
-app.MapGet("/api/test/protected", () =>
+app.MapGet("/api/test/admin", () =>
 {
     return Results.Ok(new
     {
-        message = "JWT authentication is working."
+        message = "Administrator access granted."
     });
 })
-.RequireAuthorization()
+.RequireAuthorization(policy =>
+    policy.RequireRole(
+        UserRole.Administrator.ToString()))
 .WithTags("Test");
+
 
 app.UseAuthentication();
 app.UseAuthorization();

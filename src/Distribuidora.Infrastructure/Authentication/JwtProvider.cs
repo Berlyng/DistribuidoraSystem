@@ -21,11 +21,20 @@ namespace Distribuidora.Infrastructure.Authentication
 
         public string GenerateAccessToken(User user)
         {
+
+            if (user is null) throw new ArgumentNullException(nameof(user));
+            if (user.Name is null) throw new InvalidOperationException("user.Name es null");
+            if (user.Email is null) throw new InvalidOperationException("user.Email es null");
+            //if (user.Role is null) throw new InvalidOperationException("user.Role es null");
+
+
+
             var claims = new List<Claim>
             {
                 new (JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new (JwtRegisteredClaimNames.Email, user.Email.ToString()),
                 new (ClaimTypes.Name,$"{user.Name.FirstName} {user.Name.LastName}"),
+                new("role", user.Role.ToString()),
                 new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

@@ -2,9 +2,6 @@
 using Distribuidora.Domain.Users.ValueObject;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Distribuidora.Infrastructure.Persistence.Configurations
 {
@@ -19,7 +16,7 @@ namespace Distribuidora.Infrastructure.Persistence.Configurations
             builder.OwnsOne(x => x.Name, name =>
             {
                 name.Property(x => x.FirstName)
-                .HasColumnName("Firstame")
+                .HasColumnName("FirstName")
                 .HasMaxLength(100)
                 .IsRequired();
 
@@ -49,6 +46,10 @@ namespace Distribuidora.Infrastructure.Persistence.Configurations
                 .HasConversion<int>()
                 .IsRequired();
 
+            builder.Property(x => x.Role)
+                .HasConversion<int>()
+                .IsRequired();
+
             builder.Property(x => x.CreatedAt)
                 .IsRequired();
 
@@ -57,7 +58,7 @@ namespace Distribuidora.Infrastructure.Persistence.Configurations
             builder.Property(x => x.DeletedAt);
 
             builder.Ignore(x => x.isDelete);
-                
+
 
 
         }
