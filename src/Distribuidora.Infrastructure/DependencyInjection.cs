@@ -4,6 +4,7 @@ using Distribuidora.Infrastructure.Security;
 using Microsoft.Extensions.DependencyInjection;
 using Distribuidora.Infrastructure.Authentication;
 using Microsoft.Extensions.Configuration;
+using Distribuidora.Application.Customers.Abstractions;
 
 
 
@@ -15,6 +16,7 @@ namespace Distribuidora.Infrastructure
         {
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
 
             services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 
