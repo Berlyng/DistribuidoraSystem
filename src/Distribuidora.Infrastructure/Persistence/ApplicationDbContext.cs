@@ -1,4 +1,5 @@
-﻿using Distribuidora.Domain.Users;
+﻿using Distribuidora.Domain.Customers;
+using Distribuidora.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ namespace Distribuidora.Infrastructure.Persistence
         }
 
         public DbSet<User> Users => Set<User>();
+        public DbSet<Customer> Customers => Set<Customer>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
