@@ -1,6 +1,8 @@
+using Distribuidora.API.Customers.Create;
 using Distribuidora.API.Users.Login;
 using Distribuidora.API.Users.Register;
 using Distribuidora.Application;
+using Distribuidora.Application.Customers.Create;
 using Distribuidora.Application.Users.Login;
 using Distribuidora.Application.Users.Register;
 using Distribuidora.Domain.Users;
@@ -172,6 +174,37 @@ app.MapPost("/api/users/login",
 
 .WithName("LoginUser")
 .WithTags("Users");
+
+app.MapPost("/api/customers",
+    async (CreateCustomerRequests request,
+    ISender sender,
+    CancellationToken cancellationToken) =>
+    {
+        var command = new CreateCustomerCommand(
+            request.Name,
+            request.TaxId,
+            request.PhoneNumber,
+            request.Address,
+            request.ContactName,
+            request.CreditEnabled,
+            request.CreditDays);
+        var result = await sender.Send(command, cancellationToken);
+        if (result.IsFailure)
+        {
+            return Results.BadRequest(new
+            {
+                code = result.Error.Code,
+                message = result.Error.Message,
+            });
+        }
+        return Results.Created($"/api/customers/{result.Value}", new { id = result.Value });
+    })
+
+    .WithName("CreateCustomer")
+    .WithTags("Customers");
+
+
+
 
 app.MapGet("/api/test/admin", () =>
 {
