@@ -8,6 +8,12 @@ namespace Distribuidora.Infrastructure.Persistence.Repositories
     public sealed class CustomerRepository : ICustomerRepository
     {
         private readonly ApplicationDbContext _dbContext;
+
+        public CustomerRepository(ApplicationDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
         public async Task AddAsync(Customer customer, CancellationToken cancellationToken = default)
         {
             await _dbContext.Customers.AddAsync(customer, cancellationToken);

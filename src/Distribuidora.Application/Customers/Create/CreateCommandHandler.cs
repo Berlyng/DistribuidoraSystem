@@ -11,7 +11,13 @@ namespace Distribuidora.Application.Customers.Create
 {
     public sealed class CreateCommandHandler : IRequestHandler<CreateCustomerCommand, Result<Guid>>
     {
-        public readonly ICustomerRepository _customerRepository;
+        private readonly ICustomerRepository _customerRepository;
+
+        public CreateCommandHandler(ICustomerRepository customerRepository)
+        {
+            _customerRepository = customerRepository;
+        }
+
         public async Task<Result<Guid>> Handle(CreateCustomerCommand request, CancellationToken cancellationToken)
         {
             var nameResult = CustomerName.Create(request.Name);
