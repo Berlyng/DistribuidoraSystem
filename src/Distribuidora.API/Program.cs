@@ -82,6 +82,7 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
@@ -94,136 +95,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-
-app.MapPost("/api/users/register",
-    async (
-        RegisterUserRequest request,
-        ISender sender,
-        CancellationToken cancellationToken) =>
-    {
-
-
-        if (!Enum.TryParse<UserRole>(
-        request.Role,
-        ignoreCase: true,
-        out var role))
-        {
-            return Results.BadRequest(new
-            {
-                code = "User.InvalidRole",
-                message = "El rol especificado no es válido."
-            });
-        }
-
-        var command = new RegisterUserCommand(request.FirstName, request.LastName, request.Email, request.Password, role);
-        var result = await sender.Send(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.BadRequest(new
-            {
-                code = result.Error.Code,
-                message = result.Error.Message,
-            });
-        }
-
-        return Results.Created($"/api/users/{result.Value}", new { id = result.Value });
-    })
-    .WithName("RegisterUser")
-    .WithTags("Users");
-
-
-app.MapPost("/api/users/login",
-    async (LoginRequest request,
-    ISender sender,
-    CancellationToken cancellationToken) =>
-    {
-        var command = new LoginUserCommand(request.Email, request.Password);
-        var result = await sender.Send(command, cancellationToken);
-
-        if (result.IsFailure)
-        {
-            return Results.BadRequest(new
-            {
-                code = result.Error.Code,
-                message = result.Error.Message,
-            });
-        }
-
-        return Results.Ok(result.Value);
-    })
-
-.WithName("LoginUser")
-.WithTags("Users");
-
-app.MapPost("/api/customers",
-    async (CreateCustomerRequests request,
-    ISender sender,
-    CancellationToken cancellationToken) =>
-    {
-        var command = new CreateCustomerCommand(
-            request.Name,
-            request.TaxId,
-            request.PhoneNumber,
-            request.Address,
-            request.ContactName,
-            request.CreditEnabled,
-            request.CreditDays);
-        var result = await sender.Send(command, cancellationToken);
-        if (result.IsFailure)
-        {
-            return Results.BadRequest(new
-            {
-                code = result.Error.Code,
-                message = result.Error.Message,
-            });
-        }
-        return Results.Created($"/api/customers/{result.Value}", new { id = result.Value });
-    })
-
-    .WithName("CreateCustomer")
-    .WithTags("Customers");
-
-
-
-
-app.MapGet("/api/test/admin", () =>
-{
-    return Results.Ok(new
-    {
-        message = "Administrator access granted."
-    });
-})
-.RequireAuthorization(policy =>
-    policy.RequireRole(
-        UserRole.Administrator.ToString()))
-.WithTags("Test");
 
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
