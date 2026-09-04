@@ -24,6 +24,43 @@ namespace Distribuidora.Infrastructure.Persistence.Repositories
             return await _dbContext.Customers.AnyAsync(c => c.TaxId == taxId, cancellationToken);
         }
 
+        public async Task<IReadOnlyList<Customer>> GetAllAsync(
+    string? search,
+    bool? isActive,
+    CancellationToken cancellationToken = default)
+        {
+            IQueryable<Customer> query = _dbContext.Customers
+                .AsNoTracking();
+
+            if (isActive.HasValue)
+            {
+                query = query.Where(customer =>
+                    customer.IsActive == isActive.Value);
+            }
+
+            var customers = await query
+                .ToListAsync(cancellationToken);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+
+                customers = customers
+                    .Where(customer =>
+                        customer.Name.Value.Contains(
+                            search,
+                            StringComparison.OrdinalIgnoreCase) ||
+                        customer.TaxId.Value.Contains(
+                            search,
+                            StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            return customers
+                .OrderBy(customer => customer.Name.Value)
+                .ToList();
+        }
+
         public async Task<Customer?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             return await _dbContext.Customers.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);

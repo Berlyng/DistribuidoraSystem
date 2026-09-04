@@ -1,5 +1,6 @@
 ﻿using Distribuidora.API.Customers.Create;
 using Distribuidora.Application.Customers.Create;
+using Distribuidora.Application.Customers.GetAll;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,16 @@ namespace Distribuidora.API.Controllers
                 });
             }
             return Created($"/api/customers/{result.Value}", new { id = result.Value });
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllCustomers([FromQuery] string? search, [FromQuery] bool? isActive, CancellationToken cancellationToken)
+        {
+            var query = new GetCustomerQuery(search, isActive);
+            var result = await _sender.Send(query, cancellationToken);
+            return Ok(result);
         }
     }
 }
