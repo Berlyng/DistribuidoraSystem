@@ -1,6 +1,9 @@
 ﻿using Distribuidora.API.Customers.Create;
+using Distribuidora.API.Customers.Update;
 using Distribuidora.Application.Customers.Create;
 using Distribuidora.Application.Customers.GetAll;
+using Distribuidora.Application.Customers.Update;
+using Distribuidora.Domain.Customers;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -41,6 +44,33 @@ namespace Distribuidora.API.Controllers
             var query = new GetCustomerQuery(search, isActive);
             var result = await _sender.Send(query, cancellationToken);
             return Ok(result);
+        }
+
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> UpdateCustomer(Guid id, UpdateCustomerRequest request, CancellationToken cancellationToken)
+        {
+            var command = new UpdateCustomerCommand(id, request.Name, request.TaxId, request.PhoneNumber, request.Address, request.ContactName, request.CreditEnable, request.CreditDays);
+            var result = await _sender.Send(command, cancellationToken);
+            if (result.IsFailure)
+            {
+                if(result.Error == CustomerErrors.NotFound)
+                {
+                    return NotFound(new
+                    {
+                        code = result.Error.Code,
+                        message = result.Error.Message,
+                    });
+                }
+
+                return BadRequest(new
+                {
+                    code = result.Error.Code,
+                    message = result.Error.Message
+                });
+            }
+
+            return NoContent();
         }
     }
 }
