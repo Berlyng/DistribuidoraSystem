@@ -2,6 +2,7 @@
 using Distribuidora.API.Customers.Update;
 using Distribuidora.Application.Customers.Create;
 using Distribuidora.Application.Customers.GetAll;
+using Distribuidora.Application.Customers.GetById;
 using Distribuidora.Application.Customers.Update;
 using Distribuidora.Domain.Customers;
 using MediatR;
@@ -71,6 +72,30 @@ namespace Distribuidora.API.Controllers
             }
 
             return NoContent();
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetCustomerById(Guid id, CancellationToken cancellationToken)
+        {
+            var query = new GetCustomerByIdQuery(id);
+            var result = await _sender.Send(query, cancellationToken);
+            if (result.IsFailure)
+            {
+                if (result.Error == CustomerErrors.NotFound)
+                {
+                    return NotFound(new
+                    {
+                        code = result.Error.Code,
+                        message = result.Error.Message,
+                    });
+                }
+                return BadRequest(new
+                {
+                    code = result.Error.Code,
+                    message = result.Error.Message
+                });
+            }
+            return Ok(result.Value);
         }
     }
 }
