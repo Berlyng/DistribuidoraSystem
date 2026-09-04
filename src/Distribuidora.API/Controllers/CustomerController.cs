@@ -1,5 +1,6 @@
 ﻿using Distribuidora.API.Customers.Create;
 using Distribuidora.API.Customers.Update;
+using Distribuidora.Application.ChangeStatus;
 using Distribuidora.Application.Customers.Create;
 using Distribuidora.Application.Customers.GetAll;
 using Distribuidora.Application.Customers.GetById;
@@ -55,7 +56,7 @@ namespace Distribuidora.API.Controllers
             var result = await _sender.Send(command, cancellationToken);
             if (result.IsFailure)
             {
-                if(result.Error == CustomerErrors.NotFound)
+                if (result.Error == CustomerErrors.NotFound)
                 {
                     return NotFound(new
                     {
@@ -96,6 +97,54 @@ namespace Distribuidora.API.Controllers
                 });
             }
             return Ok(result.Value);
+        }
+
+        [HttpPatch("{id:guid}/activate")]
+        public async Task<IActionResult> ActivateCustomer(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new ActivateCustomerCommand(id);
+            var result = await _sender.Send(command, cancellationToken);
+            if (result.IsFailure)
+            {
+                if (result.Error == CustomerErrors.NotFound)
+                {
+                    return NotFound(new
+                    {
+                        code = result.Error.Code,
+                        message = result.Error.Message,
+                    });
+                }
+                return BadRequest(new
+                {
+                    code = result.Error.Code,
+                    message = result.Error.Message
+                });
+            }
+            return NoContent();
+        }
+
+        [HttpPatch("{id:guid}/deactivate")]
+        public async Task<IActionResult> DeactivateCustomer(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new DeactivateCustomerCommand(id);
+            var result = await _sender.Send(command, cancellationToken);
+            if (result.IsFailure)
+            {
+                if (result.Error == CustomerErrors.NotFound)
+                {
+                    return NotFound(new
+                    {
+                        code = result.Error.Code,
+                        message = result.Error.Message,
+                    });
+                }
+                return BadRequest(new
+                {
+                    code = result.Error.Code,
+                    message = result.Error.Message
+                });
+            }
+            return NoContent();
         }
     }
 }
