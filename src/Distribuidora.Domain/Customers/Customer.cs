@@ -91,5 +91,36 @@ namespace Distribuidora.Domain.Customers
             return Result.Success();
 
         }
+
+        public Result Update(CustomerName name, TaxId taxId, PhoneNumber phoneNumber, string address, string? contactName)
+        {
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                return Result.Failure(CustomerErrors.AddressRequired);
+            }
+            address = address.Trim();
+            if (address.Length > 250)
+            {
+                return Result.Failure(CustomerErrors.AddressTooLong);
+            }
+            if (!string.IsNullOrWhiteSpace(contactName) && contactName!.Trim().Length > 150)
+            {
+                return Result.Failure(CustomerErrors.ContactNameTooLong);
+            }
+            if(CreditEnable && (CreditDays <= 0 || CreditDays > 365))
+            {
+                return Result.Failure(CustomerErrors.InvalidCreditDays);
+            }
+
+            Name = name;
+            TaxId = taxId;
+            PhoneNumber = phoneNumber;
+            Address = address;
+            ContactName = contactName?.Trim();
+            CreditEnable = CreditEnable;
+            CreditDays = CreditEnable ? CreditDays : 0;
+            UpdatedAt = DateTime.UtcNow;
+            return Result.Success();
+        }
     }
 }
