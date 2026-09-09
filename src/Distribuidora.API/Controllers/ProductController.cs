@@ -1,6 +1,7 @@
 ﻿using Distribuidora.API.Products.Create;
 using Distribuidora.API.Products.GetById;
 using Distribuidora.Application.Products.Create;
+using Distribuidora.Application.Products.GetAll;
 using Distribuidora.Domain.Products;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -95,6 +96,16 @@ namespace Distribuidora.API.Controllers
             }
 
             return Ok(result.Value);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] bool? isActive, CancellationToken cancellationToken)
+        {
+            var query = new GetProductQuery(search, isActive);
+            var product = await _sender.Send(query, cancellationToken);
+
+            return Ok(product);
         }
         
     }
