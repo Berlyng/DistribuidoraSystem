@@ -30,7 +30,7 @@ namespace Distribuidora.Infrastructure.Persistence.Repositories
         public async Task<IReadOnlyList<Product>> GetAllAsync(string? search, bool? active, CancellationToken cancellationToken = default)
         {
             IQueryable<Product> query = _context.Products.Include(p => p.Presentaciones).AsNoTracking();
-            if (!string.IsNullOrEmpty(search))
+            if (!string.IsNullOrWhiteSpace(search))
             {
                 query = query.Where(p => p.Name.Contains(search));
             }
