@@ -1,4 +1,5 @@
 ﻿using Distribuidora.API.Products.Create;
+using Distribuidora.API.Products.GetById;
 using Distribuidora.Application.Products.Create;
 using Distribuidora.Domain.Products;
 using MediatR;
@@ -65,5 +66,36 @@ namespace Distribuidora.API.Controllers
 
 
         }
+
+
+        [HttpGet("{id:guid}")]
+        public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
+        {
+            var query = new GetProductByIdQuery(id);
+
+            var result = await _sender.Send(query, cancellationToken);
+            if(result.IsFailure)
+            {
+                if(result.Error == ProductErrors.NotFound)
+                {
+                    return NotFound(new
+                    {
+                        code = result.Error.Code,
+                        message = result.Error.Message,
+                    });
+                }
+
+
+
+                return BadRequest(new
+                {
+                    code = result.Error.Code,
+                    message = result.Error.Message,
+                });
+            }
+
+            return Ok(result.Value);
+        }
+        
     }
 }
