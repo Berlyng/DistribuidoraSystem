@@ -62,5 +62,28 @@ namespace Distribuidora.Domain.Products
             UpdatedAt = DateTime.UtcNow;
         }
 
+        public Result Update(string name,  string description,  ProductTaxType taxType)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return Result<Product>.Failure(ProductErrors.NameRequired);
+            if (name.Length > 150)
+                return Result<Product>.Failure(ProductErrors.NameToolong);
+            if (!string.IsNullOrWhiteSpace(description) && description.Length > 500)
+            {
+                description = description.Trim();
+                return Result<Product>.Failure(ProductErrors.DescriptionToolong);
+            }
+
+            Name = name;
+            Description = description;
+            TaxType = taxType;
+            UpdatedAt = DateTime.UtcNow;
+
+
+
+            return Result.Success();
+           
+        }
+
     }
 }

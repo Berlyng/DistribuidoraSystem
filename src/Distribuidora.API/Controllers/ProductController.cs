@@ -1,7 +1,9 @@
 ﻿using Distribuidora.API.Products.Create;
 using Distribuidora.API.Products.GetById;
+using Distribuidora.API.Products.Update;
 using Distribuidora.Application.Products.Create;
 using Distribuidora.Application.Products.GetAll;
+using Distribuidora.Application.Products.Update;
 using Distribuidora.Domain.Products;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -106,6 +108,39 @@ namespace Distribuidora.API.Controllers
             var product = await _sender.Send(query, cancellationToken);
 
             return Ok(product);
+        }
+
+        [HttpPut("{id:guid}")]
+        public async Task<IActionResult> Update(Guid id, UpdateProductRequest request, CancellationToken cancellationToken)
+        {
+            if(!Enum.TryParse<ProductTaxType>(request.TaxType, ignoreCase: true, out var taxType))
+            {
+                return BadRequest(new
+                {
+                    code = "ProductErrors.InvalidTaxType",
+                    message = "El tipo de impuesto especificado no es valido",
+                });
+            }
+
+            var command = new UpdateProductCommand(id, request.Name, request.Description, taxType);
+            var result = await _sender.Send(command, cancellationToken);
+
+            if (result.IsFailure)
+            {
+                if(result.Error == ProductErrors.NotFound)
+                {
+                    return NotFound(new  { code = result.Error.Code, message = result.Error.Message });
+                }
+
+                return BadRequest(new
+                {
+                    code = result.Error.Code,
+                    message = result.Error.Message,
+                });
+            }
+
+
+            return NoContent();
         }
         
     }
