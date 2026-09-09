@@ -1,6 +1,7 @@
 ﻿using Distribuidora.API.Products.Create;
 using Distribuidora.API.Products.GetById;
 using Distribuidora.API.Products.Update;
+using Distribuidora.Application.Products.ChangesStatus;
 using Distribuidora.Application.Products.Create;
 using Distribuidora.Application.Products.GetAll;
 using Distribuidora.Application.Products.Update;
@@ -142,6 +143,62 @@ namespace Distribuidora.API.Controllers
 
             return NoContent();
         }
-        
+
+        [HttpPatch("{id:guid}/activate")]
+        public async Task<IActionResult> Activate(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new ActivateProductCommand(id);
+            var result = await _sender.Send(command, cancellationToken);
+
+            if (result.IsFailure)
+            {
+                if(result.Error == ProductErrors.NotFound)
+                {
+                    return NotFound(new
+                    {
+                        code = result.Error.Code,
+                        message = result.Error.Message,
+                    });
+                }
+
+                return BadRequest(new
+                {
+                    code = result.Error.Code,
+                    message = result.Error.Message
+                });
+            }
+
+            return NoContent();
+        }
+
+
+        [HttpPatch("{id:guid}/deactivate")]
+        public async Task<IActionResult> Deactivate(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new DeactivateProductCommand(id);
+            var result = await _sender.Send(command, cancellationToken);
+
+            if (result.IsFailure)
+            {
+                if (result.Error == ProductErrors.NotFound)
+                {
+                    return NotFound(new
+                    {
+                        code = result.Error.Code,
+                        message = result.Error.Message,
+                    });
+                }
+
+                return BadRequest(new
+                {
+                    code = result.Error.Code,
+                    message = result.Error.Message
+                });
+            }
+
+            return NoContent();
+        }
+
+
     }
 }
