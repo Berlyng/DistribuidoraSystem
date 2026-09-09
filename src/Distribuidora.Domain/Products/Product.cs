@@ -27,7 +27,7 @@ namespace Distribuidora.Domain.Products
         public IReadOnlyCollection<ProductPresentacion> Presentaciones => _presentaciones.AsReadOnly();
 
 
-        public Result<Product> Create(string name, string description, ProductTaxType taxType)
+        public static Result<Product> Create(string name, string description, ProductTaxType taxType)
         {
             if (string.IsNullOrWhiteSpace(name))
                 return Result<Product>.Failure(ProductErrors.NameRequired);
